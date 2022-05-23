@@ -11,6 +11,7 @@ from datetime import datetime
 
 
 model = Model()
+model.load('models/20220523231554.torch')
 print(model)
 agent = Agent(
     model,

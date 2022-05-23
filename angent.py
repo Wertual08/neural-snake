@@ -27,7 +27,7 @@ class Agent:
 
     def train(self):
         DISCOUNT = 0.999
-        SAMPLE_SIZE = 2048
+        SAMPLE_SIZE = 1024
 
         if len(self._memory) < SAMPLE_SIZE:
             return
@@ -43,12 +43,11 @@ class Agent:
 
         target_decisions = self._target_model.forward(batch_next_states, True).max(1)[0]
         next_values = target_decisions * batch_terminations * DISCOUNT + batch_rewards
-        # results = decisions.scatter(1, batch_actions.view(-1, 1), next_values.view(-1, 1))
 
         self._model.fit(decisions, next_values.view(-1, 1))
 
         self._target_counter += 1
-        if self._target_counter > 512:
+        if self._target_counter > 256:
             self._target_counter = 0
             self._target_model.load_state_dict(self._model.state_dict())
 
