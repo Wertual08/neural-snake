@@ -8,21 +8,23 @@ class Model(nn.Module):
         super(Model, self).__init__()
 
         self.layers_stack = nn.Sequential(
+            # nn.Conv2d(1, 1, 2, 1, padding='valid'),
+            # nn.ReLU(),
             nn.Flatten(),
             nn.Linear(64, 64),
             nn.ReLU(),
-            nn.Linear(64, 32),
-            # nn.Dropout(0.1),
-            nn.ReLU(),
-            nn.Linear(32, 4),
-            # nn.Softmax(1),
+            # nn.Linear(512, 128),
+            # nn.ReLU(),
+            # nn.Dropout(0.01),
+            nn.Linear(64, 4),
+            # nn.Tanh(),
         )
 
         cuda = torch.cuda.is_available()
         self._device = torch.device("cuda" if cuda else "cpu")
         self.to(self._device)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=0.01)
+        self.optimizer = optim.Adam(self.parameters(), lr=0.001)
         self.criterion = nn.MSELoss()
 
     def value_to_tensor(self, x):
