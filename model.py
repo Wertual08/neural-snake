@@ -11,12 +11,11 @@ class Model(nn.Module):
             nn.Conv2d(1, 1, 3, 1, padding='valid'),
             nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(36, 1296),
+            nn.Linear(36, 512),
             nn.ReLU(),
-            # nn.Dropout(0.2),
-            # nn.Linear(512, 128),
-            # nn.ReLU(),
-            nn.Linear(1296, 4),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            nn.Linear(256, 4),
             # nn.Tanh(),
         )
 
