@@ -45,6 +45,7 @@ while window.update():
     actions = []
     next_images = []
     rewards = []
+    terminations = []
     
     for i, action in enumerate(decisions):
         playground = playgrounds[i]
@@ -77,8 +78,9 @@ while window.update():
         actions.append(action)
         next_images.append(playground.render() / 255)
         rewards.append(reward)
+        terminations.append(1 if alive else 0)
 
-    agent.remember(images, actions, next_images, rewards)
+    agent.remember(images, actions, next_images, rewards, terminations)
 
     agent.train()
 

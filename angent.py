@@ -15,18 +15,19 @@ class Agent:
     def decide(self, states):
         return self._model.forward(self._model.array_to_tensor(states), True).max(1)[1].cpu().detach().numpy()
 
-    def remember(self, states, actions, next_states, rewards):
-        for (state, action, next_state, reward) in zip(states, actions, next_states, rewards):
+    def remember(self, states, actions, next_states, rewards, terminations):
+        for (state, action, next_state, reward, termination) in zip(states, actions, next_states, rewards, terminations):
             self._memory.push(
                 self._model.array_to_tensor(state), 
                 self._model.value_to_tensor(action), 
                 self._model.array_to_tensor(next_state), 
                 self._model.value_to_tensor(reward),
+                self._model.value_to_tensor(termination)
             )
 
     def train(self):
         DISCOUNT = 0.999
-        SAMPLE_SIZE = 512
+        SAMPLE_SIZE = 1024
 
         if len(self._memory) < SAMPLE_SIZE:
             return
@@ -36,11 +37,12 @@ class Agent:
         batch_actions = torch.stack(batch.action).view(-1, 1)
         batch_next_states = torch.stack(batch.next_state).view(-1, 1, 8, 8)
         batch_rewards = torch.stack(batch.reward)
+        batch_terminations = torch.stack(batch.termination)
         
         decisions = self._model.forward(batch_states, False).gather(1, batch_actions)
 
         target_decisions = self._target_model.forward(batch_next_states, True).max(1)[0]
-        next_values = target_decisions * DISCOUNT + batch_rewards
+        next_values = target_decisions * batch_terminations * DISCOUNT + batch_rewards
         # results = decisions.scatter(1, batch_actions.view(-1, 1), next_values.view(-1, 1))
 
         self._model.fit(decisions, next_values.view(-1, 1))
