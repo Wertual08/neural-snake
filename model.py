@@ -8,15 +8,15 @@ class Model(nn.Module):
         super(Model, self).__init__()
 
         self.layers_stack = nn.Sequential(
-            # nn.Conv2d(1, 1, 2, 1, padding='valid'),
-            # nn.ReLU(),
+            nn.Conv2d(1, 1, 2, 1, padding='valid'),
+            nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(64, 64),
+            nn.Linear(49, 256),
             nn.ReLU(),
             # nn.Linear(512, 128),
             # nn.ReLU(),
             # nn.Dropout(0.01),
-            nn.Linear(64, 4),
+            nn.Linear(256, 4),
             # nn.Tanh(),
         )
 

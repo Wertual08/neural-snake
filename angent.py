@@ -26,7 +26,7 @@ class Agent:
 
     def train(self):
         DISCOUNT = 0.999
-        SAMPLE_SIZE = 64
+        SAMPLE_SIZE = 512
 
         if len(self._memory) < SAMPLE_SIZE:
             return

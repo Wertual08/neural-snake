@@ -116,7 +116,7 @@ class Playground:
         return field
 
     def health(self) -> float:
-        return self._health / 10
+        return self._health / TOTAL_HEALTH
 
     def score(self) -> int:
         return len(self._snake) - 2
