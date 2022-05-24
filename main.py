@@ -1,4 +1,5 @@
 import math
+from model1 import Model1
 from session import Session
 from window import Window
 from datetime import datetime
@@ -9,14 +10,14 @@ SESSIONS_COUNT = 1
 WIDTH = 8
 HEIGHT = 8
 EPS_START = 0.9
-EPS_END = 0.01
-EPS_DECAY = 1000
+EPS_END = 0.001
+EPS_DECAY = 10000
 
 
-sessions = [Session(WIDTH, HEIGHT) for _ in range(SESSIONS_COUNT)]
+sessions = [Session(WIDTH, HEIGHT, Model1, 64, 256, 0.99) for _ in range(SESSIONS_COUNT)]
 for session in sessions:
-    session.load('models/20220524195002.torch')
-window = Window(WIDTH, HEIGHT)
+    session.load('models/20220524224029.torch')
+window = Window(WIDTH, HEIGHT, "Model 1")
 iteration = 0
 
 progress = []

@@ -1,24 +1,16 @@
-import re
 from angent import Agent
-from model import Model
 from playground import Playground
 from replay_memory import ReplayMemory
 import numpy as np
 
 
 class Session:
-    def __init__(self, w: int, h: int):
+    def __init__(self, w: int, h: int, model, sample: int, target: int, discount: float):
         self._w = w
         self._h = h
         self._playground = Playground(w, h)
         self._memory = ReplayMemory(65536)
-        self._model = Model()
-        self._target_model = Model()
-        self._agent = Agent(
-            self._model,
-            self._target_model,
-            self._memory,
-        )
+        self._agent = Agent(model, self._memory, sample, target, discount)
         self._total_runs = 0
         self._total_steps = 0
         self._total_score = 0
@@ -61,7 +53,7 @@ class Session:
             1 if alive else 0,
         )
 
-        self._agent.train(64, 256, 0.99)
+        self._agent.train()
 
     def finish(self):
         if not self._playground.finished():
@@ -96,7 +88,7 @@ class Session:
         return self._playground.render()
 
     def save(self, path: str):
-        self._target_model.save(path)
+        self._agent.save(path)
 
     def load(self, path: str):
-        self._model.load(path)
+        self._agent.load(path)

@@ -1,4 +1,3 @@
-from sre_constants import CHARSET
 import tkinter as tk
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,7 +10,7 @@ class Window:
     def _on_closing(self):
         self._opened = False
 
-    def __init__(self, w: int, h: int):
+    def __init__(self, w: int, h: int, title: str):
         self._w = w
         self._h = h
         self._root = tk.Tk()
@@ -19,9 +18,11 @@ class Window:
         self._canvas = tk.Canvas(self._root, bg = "black", width=self._w*UNIT_SIZE, height=self._h*UNIT_SIZE)
         self._canvas.pack(side=tk.LEFT)
         self._image = np.zeros((self._w, self._h), dtype=np.uint8)
-        self._progress = None
+        self._progress = []
+        self._progress_dirty = True
         self._opened = True
         self._root.protocol("WM_DELETE_WINDOW", self._on_closing)
+        self._root.wm_title(title)
 
         self._figure = plt.Figure(dpi=100)
         self._chart = self._figure.add_subplot(111)
@@ -35,6 +36,7 @@ class Window:
     def set_progress(self, progress: list):
         if self._progress != progress:
             self._progress = progress
+            self._progress_dirty = True
     
     def update(self) -> bool:
         self._canvas.delete("all")
@@ -49,11 +51,11 @@ class Window:
                     fill=f'#{c:02x}{c:02x}{c:02x}',
                 )
 
-        if self._progress:
+        if self._progress_dirty:
             self._chart.clear()
             self._chart.plot(self._progress)
             self._chart_canvas.draw()
-            self._progress = None
+            self._progress_dirty = False
 
         self._root.update()
         return self._opened
