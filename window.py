@@ -18,8 +18,7 @@ class Window:
         self._canvas = tk.Canvas(self._root, bg = "black", width=self._w*UNIT_SIZE, height=self._h*UNIT_SIZE)
         self._canvas.pack(side=tk.LEFT)
         self._image = np.zeros((self._w, self._h), dtype=np.uint8)
-        self._progress = []
-        self._progress_dirty = True
+        self._progress = None
         self._opened = True
         self._root.protocol("WM_DELETE_WINDOW", self._on_closing)
         self._root.wm_title(title)
@@ -34,9 +33,7 @@ class Window:
         self._image = image
 
     def set_progress(self, progress: list):
-        if self._progress != progress:
-            self._progress = progress
-            self._progress_dirty = True
+        self._progress = progress
     
     def update(self) -> bool:
         self._canvas.delete("all")
@@ -51,11 +48,11 @@ class Window:
                     fill=f'#{c:02x}{c:02x}{c:02x}',
                 )
 
-        if self._progress_dirty:
+        if self._progress:
             self._chart.clear()
             self._chart.plot(self._progress)
             self._chart_canvas.draw()
-            self._progress_dirty = False
+            self._progress = None
 
         self._root.update()
         return self._opened

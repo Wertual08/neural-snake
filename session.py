@@ -3,35 +3,52 @@ from playground import Playground
 from replay_memory import ReplayMemory
 import numpy as np
 
+from window import Window
+
 
 class Session:
-    def __init__(self, w: int, h: int, model, sample: int, target: int, discount: float):
+    def __init__(self, w: int, h: int, title: str, model, sample: int, target: int, discount: float):
         self._w = w
         self._h = h
-        self._playground = Playground(w, h)
+        self._title = title
+        self._playground = Playground(self._w, self._h)
         self._memory = ReplayMemory(65536)
         self._agent = Agent(model, self._memory, sample, target, discount)
+        self._total_iterations = 0
         self._total_runs = 0
         self._total_steps = 0
         self._total_score = 0
         self._total_reward = 0
         self._max_score = 0
 
-    def update(self, eps: float):
+        self._progress = []
+
+    def init_window(self):
+        self._window = Window(self._w, self._h, self._title)
+
+    def update(self, eps: float) -> bool:
         image = self._playground.render()
         action = self._agent.decide(image)
         
         if np.random.random() < eps:
             action = np.random.randint(0, 4)
 
-        if action == 0:
-            alive = self._playground.move_u()
-        elif action == 1:
-            alive = self._playground.move_l()
-        elif action == 2:
-            alive = self._playground.move_d()
-        else:
-            alive = self._playground.move_r()
+        alive = self._playground.move(action)
+
+        target_image = self._playground.render() / 255
+            
+        reward = self._playground.health() / 2 + self._playground.bonus() / 2
+        self._total_reward += reward
+
+        self._agent.remember(
+            image, 
+            action, 
+            target_image, 
+            reward, 
+            1 if alive else 0,
+        )
+
+        self._agent.train()
 
         if not alive:
             if self._playground.score() > self._max_score:
@@ -41,19 +58,16 @@ class Session:
             self._total_score += self._playground.score()
 
             self._playground = Playground(self._w, self._h)
+
+        self._total_iterations += 1
+        if self._total_iterations % 1024 == 0:
+            self._progress.append([self.avg_steps(), self.avg_score(), self.avg_reward(), eps])
+            self._window.set_progress(self._progress)
+
+
+        self._window.set_image(self._playground.render())
+        return self._window.update()
             
-        reward = self._playground.health() / 2 + self._playground.bonus() / 2
-        self._total_reward += reward
-
-        self._agent.remember(
-            image, 
-            action, 
-            self._playground.render() / 255, 
-            reward, 
-            1 if alive else 0,
-        )
-
-        self._agent.train()
 
     def finish(self):
         if not self._playground.finished():
@@ -80,9 +94,7 @@ class Session:
         self._max_score = 0
 
     def copy_to(self, target):
-        state_dict = self._target_model.state_dict()
-        target._model.load_state_dict(state_dict)
-        target._target_model.load_state_dict(state_dict)
+        self._agent.copy_to(target._agent)
 
     def image(self):
         return self._playground.render()
@@ -92,3 +104,7 @@ class Session:
 
     def load(self, path: str):
         self._agent.load(path)
+        return self
+
+    def title(self) -> str:
+        return self._title

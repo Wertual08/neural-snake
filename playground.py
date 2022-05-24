@@ -103,6 +103,17 @@ class Playground:
         front = (front[0] + 1, front[1])
         return self._step(front)
 
+    def move(self, action: int) -> bool:
+        if action == 0:
+            return self.move_u()
+        if action == 1:
+            return self.move_l()
+        if action == 2:
+            return self.move_d()
+        if action == 3:
+            return self.move_r()
+        return False
+
     def render(self):
         field = np.zeros((self._w, self._h), dtype=np.uint8)
         
