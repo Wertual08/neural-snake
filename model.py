@@ -6,20 +6,27 @@ from torch import optim
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
+        
+        self.conv1 = nn.Conv2d(1, 1, 2, 1, padding='valid')
+        self.conv1_act = nn.ReLU()
+        self.conv2 = nn.Conv2d(1, 1, 2, 1, padding='valid')
+        self.conv2_act = nn.ReLU()
+        self.conv3 = nn.Conv2d(1, 1, 2, 1, padding='valid')
+        self.conv3_act = nn.ReLU()
+        self.conv4 = nn.Conv2d(1, 1, 2, 1, padding='valid')
+        self.conv4_act = nn.ReLU()
 
         self.layers_stack = nn.Sequential(
-            # nn.Conv2d(1, 1, 3, 1, padding='valid'),
+            # nn.Conv2d(1, 1, 2, 1, padding='valid'),
             # nn.ReLU(),
             nn.Flatten(),
-            nn.Linear(64, 512),
+            nn.LazyLinear(256),
             nn.ReLU(),
-            nn.Linear(512, 512),
+            nn.LazyLinear(256),
             nn.ReLU(),
-            nn.Linear(512, 512),
+            nn.LazyLinear(64),
             nn.ReLU(),
-            nn.Linear(512, 256),
-            nn.ReLU(),
-            nn.Linear(256, 4),
+            nn.LazyLinear(4),
             # nn.Tanh(),
         )
 
@@ -39,9 +46,17 @@ class Model(nn.Module):
     def forward(self, x, no_grad: bool) -> int:
         if no_grad:
             with torch.no_grad():
-                x = self.layers_stack(x)
+                x1 = self.conv1_act(self.conv1(x))
+                x2 = self.conv2_act(self.conv2(x))
+                x3 = self.conv3_act(self.conv3(x))
+                x4 = self.conv4_act(self.conv4(x))
+                x = self.layers_stack(torch.cat([x1, x2, x3, x4], 1))
         else:
-            x = self.layers_stack(x)
+            x1 = self.conv1_act(self.conv1(x))
+            x2 = self.conv2_act(self.conv2(x))
+            x3 = self.conv3_act(self.conv3(x))
+            x4 = self.conv4_act(self.conv4(x))
+            x = self.layers_stack(torch.cat([x1, x2, x3, x4], 1))
         return x
 
     @staticmethod
@@ -49,7 +64,6 @@ class Model(nn.Module):
         return x.cpu().detach().numpy()
 
     def fit(self, result, expected):
-        
         self.optimizer.zero_grad()
         loss = self.criterion(result, expected)
         loss.backward()
