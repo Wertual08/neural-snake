@@ -7,24 +7,27 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         
-        self.conv1 = nn.Conv2d(1, 1, 2, 1, padding='valid')
-        self.conv1_act = nn.ReLU()
-        self.conv2 = nn.Conv2d(1, 1, 2, 1, padding='valid')
-        self.conv2_act = nn.ReLU()
-        self.conv3 = nn.Conv2d(1, 1, 2, 1, padding='valid')
-        self.conv3_act = nn.ReLU()
-        self.conv4 = nn.Conv2d(1, 1, 2, 1, padding='valid')
-        self.conv4_act = nn.ReLU()
+        self.conv_pipe = []
+        for _ in range(4):
+            self.conv_pipe.append(nn.Sequential(
+                nn.Conv2d(1, 1, 3, 1, padding='valid'),
+                nn.ReLU(),
+            ))
+        for _ in range(5):
+            self.conv_pipe.append(nn.Sequential(
+                nn.Conv2d(1, 1, 2, 1, padding='valid'),
+                nn.ReLU(),
+            ))
 
         self.layers_stack = nn.Sequential(
             # nn.Conv2d(1, 1, 2, 1, padding='valid'),
             # nn.ReLU(),
             nn.Flatten(),
-            nn.LazyLinear(256),
+            nn.LazyLinear(512),
             nn.ReLU(),
-            nn.LazyLinear(256),
+            nn.LazyLinear(512),
             nn.ReLU(),
-            nn.LazyLinear(64),
+            nn.LazyLinear(128),
             nn.ReLU(),
             nn.LazyLinear(4),
             # nn.Tanh(),
@@ -34,7 +37,7 @@ class Model(nn.Module):
         self._device = torch.device("cuda" if cuda else "cpu")
         self.to(self._device)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=0.00005)
+        self.optimizer = optim.Adam(self.parameters(), lr=0.000025)
         self.criterion = nn.HuberLoss()
 
     def value_to_tensor(self, x):
@@ -46,17 +49,11 @@ class Model(nn.Module):
     def forward(self, x, no_grad: bool) -> int:
         if no_grad:
             with torch.no_grad():
-                x1 = self.conv1_act(self.conv1(x))
-                x2 = self.conv2_act(self.conv2(x))
-                x3 = self.conv3_act(self.conv3(x))
-                x4 = self.conv4_act(self.conv4(x))
-                x = self.layers_stack(torch.cat([x1, x2, x3, x4], 1))
+                x = torch.cat([conv(x) for conv in self.conv_pipe], 1)
+                x = self.layers_stack(x)
         else:
-            x1 = self.conv1_act(self.conv1(x))
-            x2 = self.conv2_act(self.conv2(x))
-            x3 = self.conv3_act(self.conv3(x))
-            x4 = self.conv4_act(self.conv4(x))
-            x = self.layers_stack(torch.cat([x1, x2, x3, x4], 1))
+            x = torch.cat([conv(x) for conv in self.conv_pipe], 1)
+            x = self.layers_stack(x)
         return x
 
     @staticmethod
