@@ -1,6 +1,7 @@
 from model import Model
 from replay_memory import ReplayMemory
 import torch
+import numpy as np
 
 class Agent:
     def __init__(self, model: Model, target_model: Model, memory: ReplayMemory):
@@ -12,27 +13,23 @@ class Agent:
         self._target_model.load_state_dict(self._model.state_dict())
         self._target_model.eval()
 
-    def decide(self, states):
-        return self._model.forward(self._model.array_to_tensor(states), True).max(1)[1].cpu().detach().numpy()
+    def decide(self, states) -> int:
+        return int(self._model.forward(self._model.array_to_tensor(np.array([states])), True).max(1)[1][0])
 
-    def remember(self, states, actions, next_states, rewards, terminations):
-        for (state, action, next_state, reward, termination) in zip(states, actions, next_states, rewards, terminations):
-            self._memory.push(
-                self._model.array_to_tensor(state), 
-                self._model.value_to_tensor(action), 
-                self._model.array_to_tensor(next_state), 
-                self._model.value_to_tensor(reward),
-                self._model.value_to_tensor(termination)
-            )
+    def remember(self, state, action, next_state, reward, termination):
+        self._memory.push(
+            self._model.array_to_tensor(state), 
+            self._model.value_to_tensor(action), 
+            self._model.array_to_tensor(next_state), 
+            self._model.value_to_tensor(reward),
+            self._model.value_to_tensor(termination)
+        )
 
-    def train(self):
-        DISCOUNT = 0.9999
-        SAMPLE_SIZE = 512
-
-        if len(self._memory) < SAMPLE_SIZE:
+    def train(self, sample: int, target: int, discount: float):
+        if len(self._memory) < sample:
             return
 
-        batch = self._memory.sample(SAMPLE_SIZE)
+        batch = self._memory.sample(sample)
         batch_states = torch.stack(batch.state).view(-1, 1, 8, 8)
         batch_actions = torch.stack(batch.action).view(-1, 1)
         batch_next_states = torch.stack(batch.next_state).view(-1, 1, 8, 8)
@@ -42,12 +39,12 @@ class Agent:
         decisions = self._model.forward(batch_states, False).gather(1, batch_actions)
 
         target_decisions = self._target_model.forward(batch_next_states, True).max(1)[0]
-        next_values = target_decisions * batch_terminations * DISCOUNT + batch_rewards
+        next_values = target_decisions * batch_terminations * discount + batch_rewards
 
         self._model.fit(decisions, next_values.view(-1, 1))
 
         self._target_counter += 1
-        if self._target_counter > 256:
+        if self._target_counter > target:
             self._target_counter = 0
             self._target_model.load_state_dict(self._model.state_dict())
 

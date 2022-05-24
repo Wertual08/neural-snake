@@ -7,17 +7,12 @@ class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         
-        self.conv_pipe = []
-        for _ in range(4):
-            self.conv_pipe.append(nn.Sequential(
-                nn.Conv2d(1, 1, 3, 1, padding='valid'),
-                nn.ReLU(),
-            ))
-        for _ in range(5):
-            self.conv_pipe.append(nn.Sequential(
+        self.conv_pipe = nn.ModuleList(
+            [nn.Sequential(
                 nn.Conv2d(1, 1, 2, 1, padding='valid'),
                 nn.ReLU(),
-            ))
+            ) for _ in range(8)]
+        )
 
         self.layers_stack = nn.Sequential(
             # nn.Conv2d(1, 1, 2, 1, padding='valid'),
@@ -27,7 +22,7 @@ class Model(nn.Module):
             nn.ReLU(),
             nn.LazyLinear(512),
             nn.ReLU(),
-            nn.LazyLinear(128),
+            nn.LazyLinear(512),
             nn.ReLU(),
             nn.LazyLinear(4),
             # nn.Tanh(),
@@ -37,7 +32,7 @@ class Model(nn.Module):
         self._device = torch.device("cuda" if cuda else "cpu")
         self.to(self._device)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=0.000025)
+        self.optimizer = optim.Adam(self.parameters(), lr=0.0002)
         self.criterion = nn.HuberLoss()
 
     def value_to_tensor(self, x):

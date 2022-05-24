@@ -39,6 +39,8 @@ class Playground:
         return random.choice(result)
 
     def _step(self, front: Tuple[int, int]) -> bool:
+        self._bonus = 0
+
         if front in self._snake:
             self._health = 0
             return False
@@ -53,6 +55,7 @@ class Playground:
             self._apple = self._rand_position()
             self._health = TOTAL_HEALTH
             self._visited = set()
+            self._bonus = 1
         else: 
             self._snake.pop(0)
 
@@ -78,6 +81,7 @@ class Playground:
         self._snake.append(self._init_tail())
         self._health = TOTAL_HEALTH
         self._visited = set()
+        self._bonus = 0
 
     def move_u(self) -> bool:
         front = self._snake[-1]
@@ -118,10 +122,14 @@ class Playground:
     def health(self) -> float:
         return self._health / TOTAL_HEALTH
 
+    def bonus(self) -> float:
+        return self._bonus
+
     def score(self) -> int:
         return len(self._snake) - 2
 
     def steps(self) -> int:
         return self._steps
         
-        
+    def finished(self) -> bool:
+        return self._health <= 0
