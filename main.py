@@ -1,21 +1,15 @@
 import math
 from threading import Thread
-from model1 import Model1
-from model2 import Model2
-from model3 import Model3
-from model4 import Model4
-from model5 import Model5
 from session import Session
-from window import Window
 from datetime import datetime
-
+import models
 
 
 WIDTH = 8
 HEIGHT = 8
 EPS_START = 0.9
-EPS_END = 0.001
-EPS_DECAY = 10000
+EPS_END = 0.005
+EPS_DECAY = 5000
 
 
 def worker(session: Session):
@@ -32,13 +26,11 @@ def worker(session: Session):
     session.save(f'dumps/{session.title()}_{timestamp}.torch')
         
 
-
 sessions = [
-    Session(WIDTH, HEIGHT, "model-1", Model1, 64, 256, 0.99, 4096).load('dumps/model-1_20220525091550.torch'),
-    Session(WIDTH, HEIGHT, "model-2", Model2, 64, 256, 0.99, 4096).load('dumps/model-2_20220525091553.torch'),
-    Session(WIDTH, HEIGHT, "model-3", Model3, 64, 256, 0.99, 4096).load('dumps/model-3_20220525091555.torch'),
-    Session(WIDTH, HEIGHT, "model-4", Model4, 64, 256, 0.99, 4096).load('dumps/model-4_20220525091549.torch'),
-    Session(WIDTH, HEIGHT, "model-5", Model5, 64, 256, 0.99, 4096).load('dumps/model-5_20220525091551.torch'),
+    Session(WIDTH, HEIGHT, "model-18", models.Model17, 64, 256, 0.99, 8192),
+    Session(WIDTH, HEIGHT, "model-17", models.Model18, 64, 256, 0.99, 8192),
+    Session(WIDTH, HEIGHT, "model-19", models.Model19, 64, 256, 0.99, 8192),
+    Session(WIDTH, HEIGHT, "model-20", models.Model20, 64, 256, 0.99, 8192),
 ]
 
 threads = [Thread(target=worker, args=(session,)) for session in sessions]
