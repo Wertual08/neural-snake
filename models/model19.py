@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from torch import optim
 
-
+# It's no good
 class Model19(Model):
     def __init__(self):
         super(Model19, self).__init__()

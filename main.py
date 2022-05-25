@@ -27,10 +27,10 @@ def worker(session: Session):
         
 
 sessions = [
-    Session(WIDTH, HEIGHT, "model-18", models.Model17, 64, 256, 0.99, 8192),
-    Session(WIDTH, HEIGHT, "model-17", models.Model18, 64, 256, 0.99, 8192),
-    Session(WIDTH, HEIGHT, "model-19", models.Model19, 64, 256, 0.99, 8192),
-    Session(WIDTH, HEIGHT, "model-20", models.Model20, 64, 256, 0.99, 8192),
+    Session(WIDTH, HEIGHT, "model-21", models.Model21, 64, 256, 0.99, 8192),
+    Session(WIDTH, HEIGHT, "model-22", models.Model22, 64, 256, 0.99, 8192),
+    Session(WIDTH, HEIGHT, "model-23", models.Model23, 64, 256, 0.99, 8192),
+    Session(WIDTH, HEIGHT, "model-24", models.Model24, 64, 256, 0.99, 8192),
 ]
 
 threads = [Thread(target=worker, args=(session,)) for session in sessions]

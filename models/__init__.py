@@ -18,3 +18,7 @@ from models.model17 import Model17
 from models.model18 import Model18
 from models.model19 import Model19
 from models.model20 import Model20
+from models.model21 import Model21
+from models.model22 import Model22
+from models.model23 import Model23
+from models.model24 import Model24
