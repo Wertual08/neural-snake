@@ -4,9 +4,9 @@ import torch.nn as nn
 from torch import optim
 
 # It's no good
-class Model1(Model):
+class Model5(Model):
     def __init__(self):
-        super(Model1, self).__init__()
+        super(Model5, self).__init__()
         
         self.conv_pipe = nn.ModuleList(
             [nn.Sequential(
@@ -18,6 +18,10 @@ class Model1(Model):
         self.layers_stack = nn.Sequential(
             nn.Flatten(),
             nn.LazyLinear(392),
+            nn.Flatten(),
+            nn.LazyLinear(512),
+            nn.ReLU(),
+            nn.LazyLinear(128),
             nn.ReLU(),
             nn.LazyLinear(4),
         )

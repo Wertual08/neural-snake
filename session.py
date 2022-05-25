@@ -7,12 +7,12 @@ from window import Window
 
 
 class Session:
-    def __init__(self, w: int, h: int, title: str, model, sample: int, target: int, discount: float):
+    def __init__(self, w: int, h: int, title: str, model, sample: int, target: int, discount: float, memory: int):
         self._w = w
         self._h = h
         self._title = title
         self._playground = Playground(self._w, self._h)
-        self._memory = ReplayMemory(65536)
+        self._memory = ReplayMemory(memory)
         self._agent = Agent(model, self._memory, sample, target, discount)
         self._total_iterations = 0
         self._total_runs = 0
@@ -28,10 +28,11 @@ class Session:
 
     def update(self, eps: float) -> bool:
         image = self._playground.render()
-        action = self._agent.decide(image)
         
         if np.random.random() < eps:
             action = np.random.randint(0, 4)
+        else:
+            action = self._agent.decide(image)
 
         alive = self._playground.move(action)
 
@@ -63,6 +64,10 @@ class Session:
         if self._total_iterations % 1024 == 0:
             self._progress.append([self.avg_steps(), self.avg_score(), self.avg_reward(), eps])
             self._window.set_progress(self._progress)
+            self._total_runs = 0
+            self._total_score = 0
+            self._total_steps = 0
+            self._total_reward = 0
 
 
         self._window.set_image(self._playground.render())

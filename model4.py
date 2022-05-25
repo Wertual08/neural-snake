@@ -4,18 +4,20 @@ import torch.nn as nn
 from torch import optim
 
 # It's no good
-class Model1(Model):
+class Model4(Model):
     def __init__(self):
-        super(Model1, self).__init__()
+        super(Model4, self).__init__()
         
         self.conv_pipe = nn.ModuleList(
             [nn.Sequential(
                 nn.Conv2d(1, 1, 2, 1, padding='valid'),
                 nn.ReLU(),
-            ) for _ in range(8)]
+            ) for _ in range(4)]
         )
 
         self.layers_stack = nn.Sequential(
+            nn.Flatten(),
+            nn.LazyLinear(392),
             nn.Flatten(),
             nn.LazyLinear(392),
             nn.ReLU(),
