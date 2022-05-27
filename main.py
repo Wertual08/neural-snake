@@ -7,8 +7,8 @@ import models
 
 WIDTH = 8
 HEIGHT = 8
-EPS_START = 0.9
-EPS_END = 0.005
+EPS_START = 0 #0.9
+EPS_END = 0 #0.005
 EPS_DECAY = 5000
 
 
@@ -27,10 +27,7 @@ def worker(session: Session):
         
 
 sessions = [
-    Session(WIDTH, HEIGHT, "model-21", models.Model21, 64, 256, 0.99, 8192),
-    Session(WIDTH, HEIGHT, "model-22", models.Model22, 64, 256, 0.99, 8192),
-    Session(WIDTH, HEIGHT, "model-23", models.Model23, 64, 256, 0.99, 8192),
-    Session(WIDTH, HEIGHT, "model-24", models.Model24, 64, 256, 0.99, 8192),
+    Session(WIDTH, HEIGHT, "model-25", models.Model25, 64, 512, 0.99, 8192).load('dumps/model-25_20220526125709.torch'),
 ]
 
 threads = [Thread(target=worker, args=(session,)) for session in sessions]

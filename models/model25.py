@@ -10,32 +10,48 @@ class Model25(Model):
         
         self.conv_pipe = nn.ModuleList([
             nn.Sequential(
-                nn.Conv2d(1, 1, (2, 1), 1, padding=(0, 0)),
+                nn.Conv2d(1, 1, (2, 2), 1, padding=(0, 0)),
                 nn.ReLU(),
-                nn.ZeroPad2d((0, 0, 0, 1)),
-            ),
-            nn.Sequential(
-                nn.Conv2d(1, 1, (1, 2), 1, padding=(0, 0)),
-                nn.ReLU(),
-                nn.ZeroPad2d((0, 1, 0, 0)),
             ),
             nn.Sequential(
                 nn.Conv2d(1, 1, (2, 2), 1, padding=(0, 0)),
+                nn.ReLU(),
+            ),
+            nn.Sequential(
+                nn.Conv2d(1, 1, (2, 2), 1, padding=(0, 0)),
+                nn.ReLU(),
+            ),
+            nn.Sequential(
+                nn.Conv2d(1, 1, (2, 2), 1, padding=(0, 0)),
+                nn.ReLU(),
+            ),
+            nn.Sequential(
+                nn.Conv2d(1, 1, (2, 2), 1, padding=(0, 0)),
+                nn.ReLU(),
+            ),
+            nn.Sequential(
+                nn.Conv2d(1, 1, (2, 2), 1, padding=(0, 0)),
+                nn.ReLU(),
+            ),
+            nn.Sequential(
+                nn.Conv2d(1, 1, (3, 3), 1, padding=(0, 0)),
                 nn.ReLU(),
                 nn.ZeroPad2d((0, 1, 0, 1)),
             ),
             nn.Sequential(
                 nn.Conv2d(1, 1, (3, 3), 1, padding=(0, 0)),
                 nn.ReLU(),
-                nn.ZeroPad2d((1, 1, 1, 1)),
+                nn.ZeroPad2d((0, 1, 0, 1)),
             ),
         ])
 
         self.layers_stack = nn.Sequential(
             nn.Flatten(),
-            nn.LazyLinear(1024),
+            nn.LazyLinear(2048),
             nn.ReLU(),
-            nn.LazyLinear(1024),
+            nn.LazyLinear(2048),
+            nn.ReLU(),
+            nn.LazyLinear(2048),
             nn.ReLU(),
             nn.LazyLinear(4),
         )
@@ -44,7 +60,7 @@ class Model25(Model):
         self._device = torch.device("cuda" if cuda else "cpu")
         self.to(self._device)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=0.0002)
+        self.optimizer = optim.Adam(self.parameters(), lr=0.000001)
         self.criterion = nn.HuberLoss()
 
     def forward(self, x):

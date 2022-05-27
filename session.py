@@ -61,7 +61,7 @@ class Session:
             self._playground = Playground(self._w, self._h)
 
         self._total_iterations += 1
-        if self._total_iterations % 1024 == 0:
+        if self._total_iterations % 2048 == 0:
             self._progress.append([self.avg_steps(), self.avg_score(), self.avg_reward(), eps])
             self._window.set_progress(self._progress)
             self._total_runs = 0
